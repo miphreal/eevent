@@ -166,7 +166,136 @@ class WildCardTest(BaseTestCase):
 
 class PropagationTest(BaseTestCase):
     def setUp(self):
+        """
+        r .- a - aa - aaa
+          |   `- ab - aaa
+          `- b - bb - bbb
+        """
         self.e = events.Events()
+        self.e.on('r:a:aa:aaa', func_factory('r:a:aa:aaa'))
+        self.e.on('r:a:ab:aaa', func_factory('r:a:ab:aaa'))
+        self.e.on('r:b:bb:bbb', func_factory('r:b:bb:bbb'))
+        self.e.on('r:a:aa', func_factory('r:a:aa'))
+        self.e.on('r:a', func_factory('r:a'))
+        self.e.on('r:b', func_factory('r:b'))
+        self.e.on('r', func_factory('r'))
+
+        T = self.e.ES_PROPAGATE_TO_TOP
+        C = self.e.ES_PROPAGATE_CURRENT
+        D = self.e.ES_PROPAGATE_TO_DEEP
+        self.opt_c = self.e.options(propagate=C)
+        self.opt_t = self.e.options(propagate=T)
+        self.opt_d = self.e.options(propagate=D)
+        self.opt_ct = self.e.options(propagate=C | T)
+        self.opt_cd = self.e.options(propagate=C | D)
+        self.opt_td = self.e.options(propagate=T | D)
+        self.opt_tcd = self.e.options(propagate=T | C | D)
+
+    def test_default_current_top_propagation(self):
+        results = self.e.trigger('r:a:aa', **self.opt_ct)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa'])
+
+        results = self.e.trigger('r:a:aa:aaa', **self.opt_ct)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa', 'r:a:aa:aaa'])
+
+        results = self.e.trigger('r:a', **self.opt_ct)
+        self.assert_list_set_equal(results, ['r', 'r:a'])
+
+        results = self.e.trigger('r', **self.opt_ct)
+        self.assert_list_set_equal(results, ['r'])
+
+    def test_current_deep_propagation(self):
+        results = self.e.trigger('r:a:aa', **self.opt_cd)
+        self.assert_list_set_equal(results, ['r:a:aa', 'r:a:aa:aaa'])
+
+        results = self.e.trigger('r:a:aa:aaa', **self.opt_cd)
+        self.assert_list_set_equal(results, ['r:a:aa:aaa'])
+
+        results = self.e.trigger('r:a', **self.opt_cd)
+        self.assert_list_set_equal(results, ['r:a', 'r:a:aa',
+                                             'r:a:aa:aaa', 'r:a:ab:aaa'])
+
+        results = self.e.trigger('r', **self.opt_cd)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:b', 'r:a:aa',
+                                             'r:a:aa:aaa', 'r:a:ab:aaa',
+                                             'r:b:bb:bbb'])
+
+    def test_top_deep_propagation(self):
+        results = self.e.trigger('r:a:aa', **self.opt_td)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa:aaa'])
+
+        results = self.e.trigger('r:a:aa:aaa', **self.opt_td)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa'])
+
+        results = self.e.trigger('r:a', **self.opt_td)
+        self.assert_list_set_equal(results, ['r', 'r:a:aa',
+                                             'r:a:aa:aaa', 'r:a:ab:aaa'])
+
+        results = self.e.trigger('r', **self.opt_td)
+        self.assert_list_set_equal(results, ['r:a', 'r:b', 'r:a:aa',
+                                             'r:a:aa:aaa', 'r:a:ab:aaa',
+                                             'r:b:bb:bbb'])
+
+    def test_anyway_propagation(self):
+        results = self.e.trigger('r:a:aa', **self.opt_tcd)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa', 'r:a:aa:aaa'])
+
+        results = self.e.trigger('r:a:aa:aaa', **self.opt_tcd)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa', 'r:a:aa:aaa'])
+
+        results = self.e.trigger('r:a', **self.opt_tcd)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa',
+                                             'r:a:aa:aaa', 'r:a:ab:aaa'])
+
+        results = self.e.trigger('r', **self.opt_tcd)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:b', 'r:a:aa',
+                                             'r:a:aa:aaa', 'r:a:ab:aaa',
+                                             'r:b:bb:bbb'])
+
+    def test_current_propagation(self):
+        results = self.e.trigger('r:a:aa', **self.opt_c)
+        self.assert_equal(len(results), 1)
+
+        results = self.e.trigger('r:a:ab:aaa', **self.opt_c)
+        self.assert_equal(len(results), 1)
+
+        results = self.e.trigger('r:b', **self.opt_c)
+        self.assert_equal(len(results), 1)
+
+        results = self.e.trigger('r:b:bb:bbb', **self.opt_c)
+        self.assert_equal(len(results), 1)
+
+        results = self.e.trigger('r', **self.opt_c)
+        self.assert_equal(len(results), 1)
+
+    def test_top_propagation(self):
+        results = self.e.trigger('r:a:aa', **self.opt_t)
+        self.assert_list_set_equal(results, ['r', 'r:a'])
+
+        results = self.e.trigger('r:a:aa:aaa', **self.opt_t)
+        self.assert_list_set_equal(results, ['r', 'r:a', 'r:a:aa'])
+
+        results = self.e.trigger('r:b', **self.opt_t)
+        self.assert_list_set_equal(results, ['r'])
+
+        results = self.e.trigger('r:b:bb:bbb', **self.opt_t)
+        self.assert_list_set_equal(results, ['r', 'r:b'])
+
+        results = self.e.trigger('r', **self.opt_t)
+        self.assert_list_set_equal(results, [])
+
+    def test_deep_propagation(self):
+        results = self.e.trigger('r:a:aa', **self.opt_d)
+        self.assert_list_set_equal(results, ['r:a:aa:aaa'])
+
+        results = self.e.trigger('r:a:aa:aaa', **self.opt_d)
+        self.assert_list_set_equal(results, [])
+
+        results = self.e.trigger('r:b', **self.opt_d)
+        self.assert_list_set_equal(results, ['r:b:bb:bbb'])
+
+        results = self.e.trigger('r', **self.opt_d)
+        self.assert_list_set_equal(results, ['r:a', 'r:b', 'r:a:aa', 'r:a:aa:aaa', 'r:a:ab:aaa', 'r:b:bb:bbb'])
 
 
 class CallOrderTest(BaseTestCase):
@@ -215,32 +344,3 @@ class InvokeHandlersTest(BaseTestCase):
 class OptionsTest(BaseTestCase):
     def setUp(self):
         self.e = events.Events()
-
-
-#
-#
-#
-#        e.on('r:a:aa', lambda: 'r:a:aa')
-#        e.on('r:b:bb', lambda: 'r:b:bb')
-#        e.on('r:b', lambda: 'r:b')
-#        e.on('r:a', lambda: 'r:a')
-#        e.on('r', lambda: 'r')
-#        e.on(['1:2:3:4:5', '~:~:3'], [lambda: 'x', lambda: 'y'])
-#
-#        print "e.trigger('r:a:aa')", e.trigger('r:a:aa')
-#        print "e.trigger('r')", e.trigger('r')
-#        print "e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'))
-#        print "once: e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'), **e.options(unique_call=Events.TB_CALL_ONCE))
-#        print "once, reversed: e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'),
-#            **e.options(unique_call=Events.TB_CALL_ONCE, call_order=Events.CO_FROM_THE_END))
-#        print "every, reversed: e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'),
-#            **e.options(unique_call=Events.TB_CALL_EVERY, call_order=Events.CO_FROM_THE_END))
-#        print "reversed: e.trigger('r:a:aa')", e.trigger('r:a:aa', **e.options(call_order=Events.CO_FROM_THE_END))
-#
-#        print 'r:*', e.trigger('r:*', **e.options(propagate=Events.ES_PROPAGATE_CURRENT))
-#        print 'r:~', e.trigger('r:~')
-#        print '*:b', e.trigger('*:b')
-#        print '~:b', e.trigger('~:b')
-#        print '~:a:~', e.trigger('~:a:~')
-#
-#        return e

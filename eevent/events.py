@@ -14,7 +14,7 @@ class Events(dict):
     To determine hierarchy it's using ':' delimiter in names.
 
     Example:
-        >>> e = events.Events()
+        >>> e = Events()
         >>> e.on('r:a:aa', lambda: 'aa')
         >>> e.on('r:b:bb', lambda: 'bb')
         >>> e.on('r:a', lambda: 'a')
@@ -27,7 +27,7 @@ class Events(dict):
         >>> e.off('r:a')
         >>> e.trigger('r:a:aa')
         ['r', 'aa']
-        >>> e.trigger('r:*', event_opt_propagate=ES_PROPAGATE_CURRENT)
+        >>> e.trigger('r:*', event_opt_propagate=Events.ES_PROPAGATE_CURRENT)
         ['r:a', 'r:a:aa', 'r:b', 'r:b:bb']
 
     r:* = [r:a, r:b, r:a:aa, r:b:bb]
@@ -49,7 +49,7 @@ class Events(dict):
     ES_PROPAGATE_CURRENT = 2
     ES_PROPAGATE_TO_DEEP = 4
 
-    ES_PROPAGATE_DEFAULT = ES_PROPAGATE_TO_TOP|ES_PROPAGATE_CURRENT
+    ES_PROPAGATE_DEFAULT = ES_PROPAGATE_TO_TOP | ES_PROPAGATE_CURRENT
 
     # Handlers call order
     CO_FROM_THE_END = 1 # if current 3: [h5 h4 h3 h2 h1]
