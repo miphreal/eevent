@@ -38,9 +38,6 @@ class Events(dict):
 
     * - 1+ any symbols
     ~ - 1+ any symbols except :
-
-    If you use
-
     """
 
     DELIMITER = ':'
@@ -182,8 +179,11 @@ class Events(dict):
             map(lambda e: self.pop(e, None), events) # unbind custom events
         else:
             target_events = self.keys() if events is None else filter(lambda e: e in self, self._prepare_events(events))
+            target_handlers = self._prepare_handlers(handlers)
             for hs in map(self.get, target_events):
-                map(hs.remove, filter(lambda h: h in hs, handlers)) #unbind handlers
+                map(hs.remove, filter(lambda h: h in hs, target_handlers)) #unbind handlers
+            map(lambda e: self.pop(e, None), filter(lambda e: not self.get(e), target_events))
+
 
 
 # Registers common app events
