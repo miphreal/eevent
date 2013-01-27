@@ -316,28 +316,23 @@ class InvokeHandlersTest(BaseTestCase):
         self.e.on('r:b:bb', func_factory('r:b:bb'))
         self.e.on('r', func_factory('r'))
 
+        self.opt_call_once = self.e.options(unique_call=events.Events.TB_CALL_ONCE)
+        self.opt_call_every = self.e.options(unique_call=events.Events.TB_CALL_EVERY)
+
     def test_fire_once(self):
-        results = self.e.trigger(
-            ['A', 'B', 'C', 'D'],
-            **self.e.options(unique_call=events.Events.TB_CALL_ONCE))
+        results = self.e.trigger(['A', 'B', 'C', 'D'], **self.opt_call_once)
         self.assert_equals(len(results), 1)
 
     def test_fire_every(self):
-        results = self.e.trigger(
-            ['A', 'B', 'C', 'D'],
-            **self.e.options(unique_call=events.Events.TB_CALL_EVERY))
+        results = self.e.trigger(['A', 'B', 'C', 'D'], **self.opt_call_every)
         self.assert_equals(len(results), 4)
 
     def test_hierarchical_fire_once(self):
-        results = self.e.trigger(
-            ['r:a:aa', 'r:b:bb'],
-            **self.e.options(unique_call=events.Events.TB_CALL_ONCE))
+        results = self.e.trigger(['r:a:aa', 'r:b:bb'], **self.opt_call_once)
         self.assert_equals(results.count('r'), 1)
 
     def test_hierarchical_fire_every(self):
-        results = self.e.trigger(
-            ['r:a:aa', 'r:b:bb'],
-            **self.e.options(unique_call=events.Events.TB_CALL_EVERY))
+        results = self.e.trigger(['r:a:aa', 'r:b:bb'], **self.opt_call_every)
         self.assert_equals(results.count('r'), 2)
 
 

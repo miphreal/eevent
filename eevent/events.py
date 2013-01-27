@@ -27,7 +27,7 @@ class Events(dict):
         >>> e.off('r:a')
         >>> e.trigger('r:a:aa')
         ['r', 'aa']
-        >>> e.trigger('r:*', event_opt_propagate=Events.ES_PROPAGATE_CURRENT)
+        >>> e.trigger('r:*', **e.options(propagate=e.ES_PROPAGATE_CURRENT))
         ['r:a', 'r:a:aa', 'r:b', 'r:b:bb']
 
     r:* = [r:a, r:b, r:a:aa, r:b:bb]
