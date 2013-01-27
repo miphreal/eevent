@@ -13,7 +13,7 @@ def func_factory(some_text):
     return func
 
 
-class CommonUseCasesTest(unittest.TestCase):
+class UseCasesTest(unittest.TestCase):
 
     def setUp(self):
         self.e = events.Events()

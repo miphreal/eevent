@@ -27,7 +27,7 @@ class Events(dict):
         >>> e.off('r:a')
         >>> e.trigger('r:a:aa')
         ['r', 'aa']
-        >>> e.trigger('r:*', propagate=ES_PROPAGATE_CURRENT)
+        >>> e.trigger('r:*', event_opt_propagate=ES_PROPAGATE_CURRENT)
         ['r:a', 'r:a:aa', 'r:b', 'r:b:bb']
 
     r:* = [r:a, r:b, r:a:aa, r:b:bb]
@@ -101,7 +101,7 @@ class Events(dict):
         re_cached = self._re_cache.get(event_name)
         if re_cached is None:
             safe = '.+'.join(re.escape(event_name).split('\\'+self.WILD_CARD))
-            safe = '[^{}]+'.format(self.DELIMITER).join(safe.split('\\'+self.SOFT_WILD_CARD))
+            safe = '[^{}]+'.format(self.DELIMITER).join(safe.split('\\' + self.SOFT_WILD_CARD))
             self._re_cache[event_name] = re_cached = re.compile(r'^{safe}$'.format(safe=safe), re.UNICODE)
         return re_cached
 
@@ -133,13 +133,13 @@ class Events(dict):
         return [handlers] if callable(handlers) else (handlers or [])
 
     def _option(self, kw, option, default=None):
-        return kw.pop(self.KWARGS_PREFIX+option, default)
+        return kw.pop(self.KWARGS_PREFIX + option, default)
 
     def options(self, **kwargs):
         """
         Reorganize options to pass to the trigger func
         """
-        return dict((self.KWARGS_PREFIX+k, v) for k,v in kwargs.items())
+        return dict((self.KWARGS_PREFIX + k, v) for k, v in kwargs.items())
 
     def trigger(self, events, *args, **kwargs):
         """
