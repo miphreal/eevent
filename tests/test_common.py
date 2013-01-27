@@ -10,6 +10,7 @@ def func_factory(some_text):
     def func(*args, **kwargs):
         print(some_text, args, kwargs)
         return some_text
+
     return func
 
 
@@ -54,7 +55,7 @@ class BasicTest(BaseTestCase):
         results = self.e.trigger('A', *ARGS, **KWARGS)
         self.assert_list_set_equal(results, ['A', 'A+'], 'No events were fired')
 
-        results = self.e.trigger('A B C'.split(), *ARGS, **KWARGS)
+        results = self.e.trigger(['A', 'B', 'C'], *ARGS, **KWARGS)
         self.assert_list_set_equal(results, ['A', 'A+', 'B', 'B+', 'C', 'C+'], 'No events were fired')
 
         results = self.e.trigger('F', *ARGS, **KWARGS)
@@ -86,7 +87,7 @@ class BasicTest(BaseTestCase):
 
         self.e.off('F', self.func_3)
         self.assert_false('F' in self.e, "The F event is still registered "
-                                        "(must be deleted, because it doesn't have any handlers")
+                                         "(must be deleted, because it doesn't have any handlers")
         results = self.e.trigger('F', *ARGS, **KWARGS)
         self.assert_false('F3' in results, 'The func_3 is still registered')
 
@@ -176,15 +177,44 @@ class CallOrderTest(BaseTestCase):
 class InvokeHandlersTest(BaseTestCase):
     def setUp(self):
         self.e = events.Events()
+        self.func = func_factory('shared func')
+        self.e.on('A', self.func)
+        self.e.on('B', self.func)
+        self.e.on('C', self.func)
+        self.e.on('D', self.func)
+
+        self.e.on('r:a:aa', func_factory('r:a:aa'))
+        self.e.on('r:b:bb', func_factory('r:b:bb'))
+        self.e.on('r', func_factory('r'))
+
+    def test_fire_once(self):
+        results = self.e.trigger(
+            ['A', 'B', 'C', 'D'],
+            **self.e.options(unique_call=events.Events.TB_CALL_ONCE))
+        self.assert_equals(len(results), 1)
+
+    def test_fire_every(self):
+        results = self.e.trigger(
+            ['A', 'B', 'C', 'D'],
+            **self.e.options(unique_call=events.Events.TB_CALL_EVERY))
+        self.assert_equals(len(results), 4)
+
+    def test_hierarchical_fire_once(self):
+        results = self.e.trigger(
+            ['r:a:aa', 'r:b:bb'],
+            **self.e.options(unique_call=events.Events.TB_CALL_ONCE))
+        self.assert_equals(results.count('r'), 1)
+
+    def test_hierarchical_fire_every(self):
+        results = self.e.trigger(
+            ['r:a:aa', 'r:b:bb'],
+            **self.e.options(unique_call=events.Events.TB_CALL_EVERY))
+        self.assert_equals(results.count('r'), 2)
 
 
 class OptionsTest(BaseTestCase):
     def setUp(self):
         self.e = events.Events()
-
-
-
-
 
 
 #
