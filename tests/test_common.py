@@ -88,6 +88,36 @@ class HierarchyTest(unittest.TestCase):
 
     def setUp(self):
         self.e = events.Events()
+        self.e.on('Root', func_factory('R'))
+
+        self.e.on('Root:A', func_factory('R:A'))
+        self.e.on('Root:A:1', func_factory('R:A:1'))
+        self.e.on('Root:A:2', func_factory('R:A:2'))
+
+        self.e.on('Root:B:a', func_factory('R:B:a'))
+        self.e.on('Root:B:b', func_factory('R:B:b'))
+        self.e.on('Root:B:c', func_factory('R:B:c'))
+        self.e.on('Root:B', func_factory('R:B'))
+
+        self.e.on('A:a:1:I', func_factory('A:a:1:I'))
+        self.e.on('A:a:1:II', func_factory('A:a:1:II'))
+        self.e.on('A:a', func_factory('A:a'))
+
+    def test_root_hook(self):
+        results = self.e.trigger('Root:A:1', *ARGS, **KWARGS)
+        self.assertTrue('R' in results and 'R:A' in results and 'R:A:1' in results, 'Not all handlers were fired')
+
+        results = self.e.trigger('Root:A', *ARGS, **KWARGS)
+        self.assertTrue('R' in results and 'R:A' in results, 'Not all handlers were fired')
+
+        results = self.e.trigger('Root', *ARGS, **KWARGS)
+        self.assertTrue('R' in results, "Root handler wasn't fired")
+
+        results = self.e.trigger(['Root:A:1', 'Root:A', 'Root:A:2'], *ARGS, **KWARGS)
+        self.assertEqual(len(results), 4, 'Not all handlers were fired')
+
+        results = self.e.trigger('A:a:1:II', *ARGS, **KWARGS)
+        self.assertListEqual(results, ['A:a:1:II', 'A:a'], 'Not all handlers were fired')
 
 
 class WildCardTest(unittest.TestCase):
@@ -112,3 +142,36 @@ class OptionsTest(unittest.TestCase):
 
     def setUp(self):
         self.e = events.Events()
+
+
+
+
+
+
+#
+#
+#
+#        e.on('r:a:aa', lambda: 'r:a:aa')
+#        e.on('r:b:bb', lambda: 'r:b:bb')
+#        e.on('r:b', lambda: 'r:b')
+#        e.on('r:a', lambda: 'r:a')
+#        e.on('r', lambda: 'r')
+#        e.on(['1:2:3:4:5', '~:~:3'], [lambda: 'x', lambda: 'y'])
+#
+#        print "e.trigger('r:a:aa')", e.trigger('r:a:aa')
+#        print "e.trigger('r')", e.trigger('r')
+#        print "e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'))
+#        print "once: e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'), **e.options(unique_call=Events.TB_CALL_ONCE))
+#        print "once, reversed: e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'),
+#            **e.options(unique_call=Events.TB_CALL_ONCE, call_order=Events.CO_FROM_THE_END))
+#        print "every, reversed: e.trigger(('r', 'r:b:bb'))", e.trigger(('r', 'r:b:bb'),
+#            **e.options(unique_call=Events.TB_CALL_EVERY, call_order=Events.CO_FROM_THE_END))
+#        print "reversed: e.trigger('r:a:aa')", e.trigger('r:a:aa', **e.options(call_order=Events.CO_FROM_THE_END))
+#
+#        print 'r:*', e.trigger('r:*', **e.options(propagate=Events.ES_PROPAGATE_CURRENT))
+#        print 'r:~', e.trigger('r:~')
+#        print '*:b', e.trigger('*:b')
+#        print '~:b', e.trigger('~:b')
+#        print '~:a:~', e.trigger('~:a:~')
+#
+#        return e

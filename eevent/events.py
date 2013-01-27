@@ -185,7 +185,6 @@ class Events(dict):
             map(lambda e: self.pop(e, None), filter(lambda e: not self.get(e), target_events))
 
 
-
 # Registers common app events
 app_events = Events()
 trigger = app_events.trigger
