@@ -75,13 +75,13 @@ class BasicTest(BaseTestCase):
         self.assert_false(results, 'The events are still registered')
 
         self.e.off('F', self.func_2)
-        self.assertTrue('F' in self.e, 'The F event must be registered, because it still has F1 and F3 handlers')
+        self.assert_true('F' in self.e, 'The F event must be registered, because it still has F1 and F3 handlers')
         results = self.e.trigger('F', *ARGS, **KWARGS)
         self.assert_false('F2' in results, 'The func_2 is still registered')
 
         self.e.off(['D', 'F'], [self.func_1, self.func_X])
-        self.assertTrue('D' in self.e, 'The D event must be registered, because it still has X+ handler')
-        self.assertTrue('F' in self.e, 'The F event must be registered, because it still has F3 handler')
+        self.assert_true('D' in self.e, 'The D event must be registered, because it still has X+ handler')
+        self.assert_true('F' in self.e, 'The F event must be registered, because it still has F3 handler')
         results = self.e.trigger(['D', 'F'], *ARGS, **KWARGS)
         self.assert_false('F1' in results or 'X' in results, 'The func_1 or func_X handlers are still registered')
 
