@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/miphreal/eevent.png?branch=master)](https://travis-ci.org/miphreal/eevent)
+
 # Intro
 
 [eevent](https://github.com/miphreal/eevent/tree/master/eevent) allows to organize events hierarchically and provides a simple interface to fire custom events synchronously.
