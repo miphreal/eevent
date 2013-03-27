@@ -1,6 +1,6 @@
 # Intro
 
-[eevent](/miphreal/eevent/src) allows to organize events hierarchically and provides a simple interface to fire custom events synchronously.
+[eevent](https://github.com/miphreal/eevent/tree/master/eevent) allows to organize events hierarchically and provides a simple interface to fire custom events synchronously.
 
 *like*
 ```
@@ -22,6 +22,6 @@
 ['r:a', 'r:a:aa', 'r:b', 'r:b:bb']
 ```
 
-More samples you can find in the [tests](/miphreal/eevent/src).
+More samples you can find in the [tests](https://github.com/miphreal/eevent/tree/master/tests).
 
 Another place to find out more is [here](https://readthedocs.org/docs/eevent/en/latest/).
