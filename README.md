@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/miphreal/eevent.png?branch=master)](https://travis-ci.org/miphreal/eevent)
 
-# Intro
+# 0x00
+
+Supported python versions: 2.7
 
 [eevent](https://github.com/miphreal/eevent/tree/master/eevent) allows to organize events hierarchically and provides a simple interface to fire custom events synchronously.
 
