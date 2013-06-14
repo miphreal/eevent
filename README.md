@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/miphreal/eevent.png?branch=master)](https://travis-ci.org/miphreal/eevent)
 
-# 0x00
+## info
 
 Supported python versions: 2.7
 
