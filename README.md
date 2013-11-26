@@ -26,3 +26,7 @@ Supported python versions: 2.7
   ```
 
 More samples you can find in the [tests](https://github.com/miphreal/eevent/tree/master/tests).
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/miphreal/eevent/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
